@@ -1,18 +1,17 @@
-#!/bin/bash
+#!/bin/sh
 
 cd /MTProxy
 
-curl -s https://core.telegram.org/getProxySecret -o proxy-secret
-curl -s https://core.telegram.org/getProxyConfig -o proxy-multi.conf
+wget -qO proxy-secret https://core.telegram.org/getProxySecret
+wget -qO proxy-multi.conf https://core.telegram.org/getProxyConfig
 
-SECRET=$(head -c 16 /dev/urandom | xxd -ps)
+SECRET=${SECRET:-0123456789abcdef0123456789abcdef}
 
-echo "====================================="
-echo "MTProto Secret: $SECRET"
-echo "====================================="
+echo "Using secret: $SECRET"
 
-./objs/bin/mtproto-proxy \
--s $SECRET \
--p 443 \
--H 443 \
---aes-pwd proxy-secret proxy-multi.conf
+exec ./objs/bin/mtproto-proxy \
+  -u nobody \
+  -p 8888 \
+  -H 8888 \
+  -S $SECRET \
+  --aes-pwd proxy-secret proxy-multi.conf
